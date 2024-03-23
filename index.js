@@ -9,6 +9,8 @@ const dotenv = require("dotenv");
 
 // Task 2
 const { exec } = require('child_process');
+// Getting the system information using a npm package systeminformation
+const si = require('systeminformation');
 
 const app = express();
 
@@ -43,8 +45,7 @@ app.get('/search', Task1.searchPolicy);
 app.get('/policy-aggregation', Task1.policyAggregation);
 
 // Task 2
-// Getting the system information using a npm package systeminformation
-const si = require('systeminformation');
+
 
 // Monitor CPU usage and restart server if necessary
 setInterval(async () => {
