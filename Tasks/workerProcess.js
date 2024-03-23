@@ -45,15 +45,12 @@ const processFile = (filePath, originalname) => {
                 { upsert: true, new: true }
             );
 
-            const exAgent = await Agent.find({ agentName: record['agent'] });
-
             // Save the Account name if the name is not already present in the Account collection
             const account = await Account.findOneAndUpdate(
                 { accountName: record['account_name'] },
                 { $setOnInsert: { accountName: record['account_name'] } },
                 { upsert: true, new: true }
             );
-            const exAccount = await Account.find({ accountName: record['account_name'] });
 
             const user = await User.create({
                 firstName: record['firstname'],
@@ -65,8 +62,8 @@ const processFile = (filePath, originalname) => {
                 email: record['email'],
                 gender: record['gender'],
                 userType: record['userType'],
-                agent: exAgent[0]._id,
-                account: exAccount[0]._id
+                agent: agent._id,
+                account: account._id
             });
 
             //Check if catergory and policy company already exists if not save them
