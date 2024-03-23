@@ -25,3 +25,14 @@ Task 2:
 
 - To run the app you can use the already installed nodemon package
 >      nodemon index.js
+
+## Project Breakdown
+- The project is broken down into the models and tasks folder.
+    - The Models folder consists of all the schema that are needed in the project.
+    - The Tasks folder consists of the various controller files broken down into each tasks as Task1.js aand Task2.js as well as the worker process that is used to achieve the file upload operation concurrently
+  - The index.js file consists of all the API endpoints.
+    - /uploadFile - Task 1.1 and 1.4
+    - /search - Task 1.2
+    - /policy-aggregation - Task 1.3
+    - /schedule-message - Task 2.2
+  - Task 2.1 is achieved in the index.js file by using a library called systeminformation and using an interval to check the CPU usage every minute
