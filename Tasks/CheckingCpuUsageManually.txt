@@ -1,0 +1,43 @@
+function calculateCPUUsage() {
+    const cpus = os.cpus();
+    let totalIdle = 0, totalTick = 0;
+    for (let i = 0, len = cpus.length; i < len; i++) {
+        const cpu = cpus[i];
+        for (let type in cpu.times) {
+            totalTick += cpu.times[type];
+        }
+        totalIdle += cpu.times.idle;
+    }
+    return { idle: totalIdle / cpus.length, total: totalTick / cpus.length };
+}
+
+// Function to get current CPU usage
+function getCurrentCPUUsage() {
+    const start = calculateCPUUsage();
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const end = calculateCPUUsage();
+            const idleDifference = end.idle - start.idle;
+            const totalDifference = end.total - start.total;
+            const percentageCPU = 100 - ~~(100 * idleDifference / totalDifference);
+            resolve(percentageCPU);
+        }, 100);
+    });
+}
+
+// Monitor CPU usage and restart server if necessary
+setInterval(async () => {
+    const cpuUsage = await getCurrentCPUUsage();
+    console.log(`CPU Usage: ${cpuUsage}%`);
+    if (cpuUsage > 70) {
+        console.log('CPU usage is over 70%. Restarting server...');
+        // Replace 'your-server-start-command' with your actual server start command
+        exec('npx nodemon index.js', (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error restarting server: ${error}`);
+                return;
+            }
+            console.log(`Server restarted successfully: ${stdout}`);
+        });
+    }
+}, 1000); // Check every second
