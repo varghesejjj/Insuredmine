@@ -1,5 +1,4 @@
-# Project Title
-Insuredmine Assesment for Nodejs Development
+# Insuredmine Nodejs Assessment
 
 ## Description
 The project uses the provided data as given in the .csv file sent along with the assessment details and tries to achieve / complete the following tasks.
@@ -23,3 +22,6 @@ Task 2:
 - Once the required modules are installed you can create the .env file with the PORT information.
 
 - ***Note: The MongoDB database of the project is set up to run locally. Please make sure the local instance of MongoDB is running at port 27017.***
+
+- To run the app you can use the already installed nodemon package
+>      nodemon index.js
