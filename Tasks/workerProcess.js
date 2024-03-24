@@ -11,7 +11,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/Insuredmine').then(() => {
     console.error(`MongoDB connection error: ${error.message}`);
 });
 
-// Import your models
+// Importing the models
 const Agent = require('../Models/agent');
 const Account = require('../Models/account');
 const User = require('../Models/user');
