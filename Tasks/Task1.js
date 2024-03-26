@@ -43,7 +43,7 @@ exports.searchPolicy = async (req, res) => {
             return res.status(400).json({ success: false, message: 'First name is required.' });
         }
 
-        // Find users with the given first name
+        // Find users with the given first name (Ignore case sensitivity)
         const users = await User.find({ firstName: new RegExp(firstName, 'i') });
 
         // Extract user IDs
@@ -61,38 +61,52 @@ exports.searchPolicy = async (req, res) => {
     }
 }
 
-// Aggregate total premium by company
+// Get all the policies that are linked to a specific accountName
 exports.policyAggregation = async (req, res) => {
-    try {
-        // Get the policy info, group the info by company and sum the policy premium
-        const policies = await PolicyInfo.aggregate([
-            {
-                $group: {
-                    _id: '$company',
-                    totalPremium: { $sum: '$policyPremium' }
+    {
+        try {
+            const aggregatedPolicies = await PolicyInfo.aggregate([
+                {
+                    // Getting all the users from the User collection
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'userInfo'
+                    }
+                },
+                {
+                    $unwind: '$userInfo' // Flatten the userInfo array
+                },
+                {
+                    $lookup: {
+                        from: 'accounts', // Getting all the accounts from the Account collection
+                        localField: 'userInfo.account', // The reference to Accounts in User
+                        foreignField: '_id',
+                        as: 'accountInfo'
+                    }
+                },
+                {
+                    $unwind: '$accountInfo' // Flatten the accountInfo array
+                },
+                {
+                    $group: {
+                        _id: '$accountInfo.accountName', // Group by accountName field in Account collection
+                        policies: { $push: '$$ROOT' } // Push the entire document into the policies array
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0, // Exclude the _id field
+                        accountName: '$_id',
+                        policies: 1 // Include the aggregated policies
+                    }
                 }
-            },
-            // Lookup the company name from the policy carriers collection (Join operation)
-            {
-                $lookup: {
-                    from: 'policycarriers',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'company'
-                }
-            },
-            // Cleaning the aggregation result by removing the _id field and getting the company name
-            {
-                $project: {
-                    _id: 0,
-                    company: { $arrayElemAt: ['$company.companyName', 0] },
-                    totalPremium: 1
-                }
-            }
-        ]);
+            ]);
 
-        return res.status(200).json({ success: true, policies });
-    } catch (error) {
-        return res.status(500).json({ success: false, message: error.message });
-    }
+            res.status(200).json({ success: true, aggregatedPolicies });
+        } catch (error) {
+            res.status(500).send(error.message);
+        }
+    };
 }
